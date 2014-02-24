@@ -50,8 +50,27 @@ sieve n = do
                  Just pnext -> sieve' arr' pnext
                  _ -> return arr
 
+toPrimeList :: IOArray Int Int -> IO [Int]
+toPrimeList arr = do
+  (_, upper) <- getBounds arr
+  toPrimeList' upper 1 arr
+
+toPrimeList' :: Int -> Int -> IOArray Int Int -> IO [Int]
+toPrimeList' upper idx arr =
+  if idx >= upper then
+    return []
+  else do
+    val <- readArray arr idx
+    if val == 0 then do
+      pl <- toPrimeList' upper nidx arr
+      return $ idx : pl
+    else
+      toPrimeList' upper nidx arr
+    where nidx = idx+1
+
 main :: IO ()
 main = do
-  arr <- sieve 100
-  dispArray arr
+  arr <- sieve 600
+  plist <- toPrimeList arr
+  print plist
   return ()
